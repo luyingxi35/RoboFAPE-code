@@ -1,0 +1,17 @@
+{
+  "id": "reference",
+  "task_id": "analytical-example",
+  "success": true,
+  "stage": [
+    "reach",
+    "reach",
+    "reach",
+    "reach"
+  ],
+  "distance": [
+    3,
+    2,
+    1,
+    0
+  ]
+}

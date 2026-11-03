@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robofape"
+version = "0.1.0a1"
+description = "Trajectory collection and stage-aware progress labeling for robot manipulation"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT AND Apache-2.0"
+license-files = ["LICENSE", "NOTICE.md", "licenses/*.txt"]
+dependencies = ["numpy>=1.26,<3"]
+
+[project.optional-dependencies]
+collection = ["mani_skill==3.0.0b22", "sapien==3.0.1", "h5py>=3.10,<4", "imageio[ffmpeg]>=2.34,<3", "Pillow>=10,<13", "mplib>=0.2.1,<0.3", "transforms3d>=0.4.2,<0.5", "trimesh>=4,<5"]
+
+[project.scripts]
+robofape = "robofape.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+robofape = ["configs/*.json"]

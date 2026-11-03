@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "task_id": "PutEggplantInBasketScene-v1",
+  "task_description": "Pick up the eggplant and place it into the yellow basket.",
+  "observations": [],
+  "stages": [],
+  "profile_adapter": "bridge",
+  "stage_order": [
+    "approach",
+    "grasp_lift",
+    "transport",
+    "place_release"
+  ],
+  "runtime": {
+    "task_module": "BridgePutOn",
+    "solver": "BridgePutOn:solve_put_eggplant_in_basket",
+    "max_episode_steps": 300,
+    "robot": "widowx",
+    "control_mode": "arm_pd_ee_target_delta_pose_align2_gripper_pd_joint_pos",
+    "object": "source",
+    "main_camera": "3rd_view_camera",
+    "wrist_camera": "wrist_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 7
+  },
+  "num_stage": 4,
+  "validation_status": "runtime_unverified"
+}

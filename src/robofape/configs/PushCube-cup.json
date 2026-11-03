@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "task_id": "PushCube-cup",
+  "task_description": "Push the cup into the target region.",
+  "observations": [
+    {
+      "name": "eef",
+      "source": "agent.tcp.pose",
+      "transform": "position"
+    },
+    {
+      "name": "obj",
+      "source": "env.obj.pose",
+      "transform": "position"
+    },
+    {
+      "name": "goal",
+      "source": "env.goal_region.pose",
+      "transform": "position"
+    },
+    {
+      "name": "success",
+      "source": "env.evaluate.success",
+      "transform": "boolean"
+    }
+  ],
+  "stages": [
+    {
+      "stage": "reach",
+      "metric": "distance(eef, obj)",
+      "end_condition": "distance(eef, obj) <= 0.07"
+    },
+    {
+      "stage": "push",
+      "metric": "distance(obj, goal)",
+      "end_condition": "boolean_state(success) >= 1.0"
+    }
+  ],
+  "runtime": {
+    "task_module": "PushCube",
+    "solver": "PushCube:solve_pushcube_cup",
+    "max_episode_steps": 180,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "obj",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "profile_adapter": "schema",
+  "stage_order": [
+    "reach",
+    "push"
+  ],
+  "num_stage": 2,
+  "validation_status": "runtime_unverified"
+}

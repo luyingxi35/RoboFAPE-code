@@ -1,0 +1,16 @@
+{
+  "control_mode": "pd_joint_pos",
+  "action_dim": 8,
+  "state_dim": 9,
+  "task_ids": [
+    "PushCube-v1"
+  ],
+  "execute_chunk": 5,
+  "action_horizon": 10,
+  "asset_id": "physical-intelligence/maniskill",
+  "discrete_state_input": false,
+  "checkpoint_files": [
+    "model.safetensors",
+    "assets/physical-intelligence/maniskill/norm_stats.json"
+  ]
+}

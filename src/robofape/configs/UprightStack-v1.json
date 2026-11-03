@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "task_id": "UprightStack-v1",
+  "task_description": "Stand the brick upright and stack it on the red cube.",
+  "observations": [],
+  "stages": [],
+  "profile_adapter": "upright",
+  "stage_order": [
+    "approach_pregrasp",
+    "grasp",
+    "lift",
+    "upright",
+    "pre_place",
+    "final_place"
+  ],
+  "runtime": {
+    "task_module": "UprightStack",
+    "solver": "UprightStack:solveUprightStack",
+    "max_episode_steps": 650,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "brick",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "num_stage": 6,
+  "validation_status": "runtime_unverified"
+}

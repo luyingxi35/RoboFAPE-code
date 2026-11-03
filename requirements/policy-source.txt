@@ -1,0 +1,3 @@
+# Optional OpenPI implementation inspected for the inference API.
+# Installation and checkpoint compatibility still require Linux/GPU acceptance.
+openpi @ git+https://github.com/Physical-Intelligence/openpi.git@215abfb217dbac7d5f1273282331b9b1866c0479

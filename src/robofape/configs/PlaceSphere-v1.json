@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "task_id": "PlaceSphere-v1",
+  "task_description": "Place the blue sphere into the white bin.",
+  "observations": [],
+  "stages": [],
+  "profile_adapter": "sphere",
+  "stage_order": [
+    "approach",
+    "grasp",
+    "lift",
+    "transport_align",
+    "release_settle"
+  ],
+  "runtime": {
+    "task_module": "PlaceSphere",
+    "solver": "upstream:PlaceSphere-v1",
+    "max_episode_steps": 400,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "obj",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "num_stage": 5,
+  "validation_status": "runtime_unverified"
+}

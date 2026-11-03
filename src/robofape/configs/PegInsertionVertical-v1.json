@@ -1,0 +1,139 @@
+{
+  "schema_version": 2,
+  "task_id": "PegInsertionVertical-v1",
+  "task_description": "Insert the peg vertically into the target hole.",
+  "num_stage": 3,
+  "observations": [
+    {
+      "name": "eef_pos",
+      "source": "agent.tcp.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Robot tool-center-point world position."
+    },
+    {
+      "name": "peg_pos",
+      "source": "env.peg.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Peg center world position."
+    },
+    {
+      "name": "peg_quat",
+      "source": "env.peg.pose",
+      "argument": null,
+      "transform": "quaternion",
+      "description": "Peg world orientation."
+    },
+    {
+      "name": "peg_head_pos",
+      "source": "env.peg_head_pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Peg insertion-tip world position."
+    },
+    {
+      "name": "hole_pos",
+      "source": "env.box_hole_pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Hole-center world position."
+    },
+    {
+      "name": "hole_axis",
+      "source": "env.box_hole_pose",
+      "argument": null,
+      "transform": "axis_x",
+      "description": "Hole insertion axis in world coordinates."
+    },
+    {
+      "name": "goal_pos",
+      "source": "env.goal_pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Peg-center position at full insertion."
+    },
+    {
+      "name": "goal_quat",
+      "source": "env.goal_pose",
+      "argument": null,
+      "transform": "quaternion",
+      "description": "Peg orientation required by the hole."
+    },
+    {
+      "name": "grasped",
+      "source": "agent.is_grasping",
+      "argument": "env.peg",
+      "transform": "boolean",
+      "description": "Whether the robot currently has a native two-finger grasp on the peg."
+    },
+    {
+      "name": "inserted",
+      "source": "env.evaluate.success",
+      "argument": null,
+      "transform": "boolean",
+      "description": "Authoritative environment insertion-success predicate."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "acquire_peg",
+      "failure_substages": [
+        "reach",
+        "grasp"
+      ],
+      "description": "Approach the peg, descend to a valid grasp pose, and close the gripper.",
+      "metric": "distance(eef_pos, peg_pos)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(grasped) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "The grasp predicate gives an independent physical endpoint; the TCP-to-peg distance remains useful for multi-segment matching despite descent and gripper-settling reversals."
+    },
+    {
+      "stage": "align_peg",
+      "failure_substages": [
+        "lift",
+        "pre_insert"
+      ],
+      "description": "Lift and transport the grasped peg, then align its body and tip with the vertical hole axis.",
+      "metric": "lateral_distance(peg_head_pos, hole_pos, hole_axis) + lateral_distance(peg_pos, goal_pos, hole_axis) + 0.05 * orientation_error(peg_quat, goal_quat)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(grasped) >= 1.0 and lateral_distance(peg_head_pos, hole_pos, hole_axis) < 0.02 and lateral_distance(peg_pos, goal_pos, hole_axis) < 0.02 and orientation_error(peg_quat, goal_quat) < 0.25 and distance(peg_pos, goal_pos) < 0.22",
+      "monotonic_expected": false,
+      "rationale": "Lift, transfer, and lateral correction form one physical alignment operation with a naturally multi-modal trajectory; lateral and angular errors identify readiness without requiring insertion-depth progress."
+    },
+    {
+      "stage": "insert_peg",
+      "failure_substages": [
+        "insert"
+      ],
+      "description": "Advance the aligned peg along the hole axis until the environment reports insertion.",
+      "metric": "distance(peg_head_pos, hole_pos) + 0.05 * orientation_error(peg_quat, goal_quat)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(inserted) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "Tip displacement plus orientation error supports reference matching through contact corrections, while the native insertion predicate supplies the physical endpoint."
+    }
+  ],
+  "profile_adapter": "schema",
+  "runtime": {
+    "task_module": "PegInsertionVertical",
+    "solver": "PegInsertionVertical:solve_peginsertionvertical",
+    "max_episode_steps": 400,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "peg",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "stage_order": [
+    "acquire_peg",
+    "align_peg",
+    "insert_peg"
+  ],
+  "validation_status": "runtime_unverified"
+}

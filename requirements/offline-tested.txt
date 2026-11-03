@@ -1,0 +1,4 @@
+# Offline validation environment: Python 3.12
+numpy==2.3.5
+setuptools==84.1.0
+wheel==0.48.0

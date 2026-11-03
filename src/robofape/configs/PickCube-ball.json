@@ -1,0 +1,122 @@
+{
+  "schema_version": 2,
+  "task_id": "PickCube-ball",
+  "task_description": "Pick up the tennis ball and place it at the target.",
+  "num_stage": 4,
+  "observations": [
+    {
+      "name": "eef_pos",
+      "source": "agent.tcp.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Panda TCP world position."
+    },
+    {
+      "name": "ball_pos",
+      "source": "env.cube.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Tennis-ball world position."
+    },
+    {
+      "name": "goal_pos",
+      "source": "env.goal_site.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Target world position."
+    },
+    {
+      "name": "grasp_confirmed",
+      "source": "env.grasp_confirmed",
+      "argument": null,
+      "transform": "boolean",
+      "description": "Shared bilateral contact persistence result."
+    },
+    {
+      "name": "lift_confirmed",
+      "source": "env.lift_confirmed",
+      "argument": null,
+      "transform": "boolean",
+      "description": "Independent ball-height audit result."
+    },
+    {
+      "name": "task_success",
+      "source": "env.evaluate.success",
+      "argument": null,
+      "transform": "boolean",
+      "description": "Native PickCube-ball success."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "reach",
+      "failure_substages": [
+        "reach"
+      ],
+      "description": "Move the TCP toward the ball.",
+      "metric": "distance(eef_pos, ball_pos)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(grasp_confirmed) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "Distance is progress evidence until shared physical grasp confirmation ends acquisition."
+    },
+    {
+      "stage": "acquire",
+      "failure_substages": [
+        "grasp"
+      ],
+      "description": "Establish bilateral physical contact with persistence.",
+      "metric": "boolean_state(grasp_confirmed)",
+      "direction": "increase",
+      "end_condition": "boolean_state(grasp_confirmed) >= 1.0",
+      "monotonic_expected": true,
+      "rationale": "The shared 0.5 N, 85 degree, three-frame bilateral rule defines physical acquisition."
+    },
+    {
+      "stage": "lift",
+      "failure_substages": [
+        "lift"
+      ],
+      "description": "Lift the confirmed grasped ball.",
+      "metric": "boolean_state(lift_confirmed)",
+      "direction": "increase",
+      "end_condition": "boolean_state(lift_confirmed) >= 1.0",
+      "monotonic_expected": true,
+      "rationale": "Lift is independent height evidence and must not be conflated with acquiring the ball."
+    },
+    {
+      "stage": "place",
+      "failure_substages": [
+        "place"
+      ],
+      "description": "Place the ball at the target.",
+      "metric": "distance(ball_pos, goal_pos)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(task_success) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "Native task success remains the authoritative terminal placement condition."
+    }
+  ],
+  "profile_adapter": "schema",
+  "runtime": {
+    "task_module": "PickCube",
+    "solver": "PickCube:solve_pickcube_ball",
+    "max_episode_steps": 300,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "cube",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "stage_order": [
+    "reach",
+    "acquire",
+    "lift",
+    "place"
+  ],
+  "validation_status": "runtime_unverified"
+}

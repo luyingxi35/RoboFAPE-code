@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "task_id": "PushCube-v1",
+  "task_description": "Push the cube across the tabletop until its center lies inside the target region.",
+  "num_stage": 1,
+  "observations": [
+    {
+      "name": "eef_pos",
+      "source": "agent.tcp.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Robot tool-center-point world position."
+    },
+    {
+      "name": "cube_pos",
+      "source": "env.obj.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Pushed cube center position."
+    },
+    {
+      "name": "goal_pos",
+      "source": "env.goal_region.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Target-region center position."
+    },
+    {
+      "name": "push_success",
+      "source": "env.evaluate.success",
+      "argument": null,
+      "transform": "boolean",
+      "description": "Cube center is inside the goal region while remaining on the table."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "approach_and_push",
+      "failure_substages": [
+        "reach",
+        "push"
+      ],
+      "description": "Move behind the cube, establish pushing contact, and push it into the target region.",
+      "metric": "distance(eef_pos, cube_pos) + distance(cube_pos, goal_pos)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(push_success) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "There is no independently observable boundary between reaching and pushing; one continuous metric captures both robot approach and object displacement, and native task success defines completion."
+    }
+  ],
+  "profile_adapter": "schema",
+  "runtime": {
+    "task_module": null,
+    "solver": "upstream:PushCube-v1",
+    "max_episode_steps": 180,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "obj",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "stage_order": [
+    "approach_and_push"
+  ],
+  "validation_status": "runtime_unverified"
+}

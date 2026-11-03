@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "task_id": "PullCubeTool-golf",
+  "task_description": "Use the L-shaped tool to pull the golf ball into the reachable target region.",
+  "observations": [],
+  "stages": [],
+  "profile_adapter": "golf",
+  "stage_order": [
+    "acquire_tool",
+    "transport_tool",
+    "pull_ball"
+  ],
+  "runtime": {
+    "task_module": "PullCubeTool",
+    "solver": "PullCubeTool:solve_pullcubetool_golf",
+    "max_episode_steps": 400,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "tool",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "num_stage": 3,
+  "validation_status": "runtime_unverified"
+}

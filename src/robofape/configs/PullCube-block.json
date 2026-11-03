@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "task_id": "PullCube-block",
+  "task_description": "Pull the wooden block into the target region.",
+  "num_stage": 2,
+  "observations": [
+    {
+      "name": "eef_pos",
+      "source": "agent.tcp.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "TCP world position."
+    },
+    {
+      "name": "obj_pos",
+      "source": "env.obj.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Wood-block world position."
+    },
+    {
+      "name": "goal_pos",
+      "source": "env.goal_region.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Goal-region world position."
+    },
+    {
+      "name": "pull_success",
+      "source": "env.evaluate.success",
+      "argument": null,
+      "transform": "boolean",
+      "description": "Native PullCube success."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "approach_pull_point",
+      "failure_substages": [
+        "reach"
+      ],
+      "description": "Approach the pull contact point behind the block.",
+      "metric": "distance(eef_pos, obj_pos)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(pull_success) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "Exact natural labeling replaces this generic schema metric with the calibrated pull-contact metric."
+    },
+    {
+      "stage": "pull_to_goal",
+      "failure_substages": [
+        "pull"
+      ],
+      "description": "Move the block toward the target after effective displacement begins.",
+      "metric": "distance(obj_pos, goal_pos)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(pull_success) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "Exact natural labeling gates this phase by object displacement from the paired initial state."
+    }
+  ],
+  "profile_adapter": "pullcube",
+  "stage_order": [
+    "approach_pull_point",
+    "pull_to_goal"
+  ],
+  "runtime": {
+    "task_module": "PullCube",
+    "solver": "PullCube:solve_pullcube_block",
+    "max_episode_steps": 250,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "obj",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "validation_status": "runtime_unverified"
+}

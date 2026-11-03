@@ -1,0 +1,24 @@
+name: offline-checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install .
+      - run: python -m unittest discover -s tests -v
+      - run: python scripts/check_release.py
+      - run: python -m pip wheel . --no-deps --wheel-dir dist
+      - run: python -m pip install --force-reinstall --no-deps dist/*.whl
+      - run: cd /tmp && robofape tasks
+      - run: robofape label --input examples/analytical/failure.json --references examples/analytical/references.json --output outputs/analytical
+      - run: robofape validate outputs/analytical/manifest.json
+      - run: python scripts/check_example.py outputs/analytical/failure/trajectory.json

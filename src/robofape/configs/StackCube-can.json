@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "task_id": "StackCube-can",
+  "task_description": "Stack the tomato soup can on the tuna fish can.",
+  "num_stage": 2,
+  "observations": [
+    {
+      "name": "eef_pos",
+      "source": "agent.tcp.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Robot tool-center-point world position."
+    },
+    {
+      "name": "cube_a_pos",
+      "source": "env.cubeA.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Movable cube A center position."
+    },
+    {
+      "name": "cube_b_pos",
+      "source": "env.cubeB.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Support cube B center position."
+    },
+    {
+      "name": "cube_a_grasped",
+      "source": "env.evaluate.is_cubeA_grasped",
+      "argument": null,
+      "transform": "boolean",
+      "description": "Authoritative cube-A grasp predicate."
+    },
+    {
+      "name": "stack_success",
+      "source": "env.evaluate.success",
+      "argument": null,
+      "transform": "boolean",
+      "description": "Cube A is on cube B, static, and released."
+    },
+    {
+      "name": "terminal_separation",
+      "source": "derived.terminal_separation",
+      "transform": "float"
+    }
+  ],
+  "stages": [
+    {
+      "stage": "acquire_cube",
+      "failure_substages": [
+        "reach",
+        "grasp"
+      ],
+      "description": "Approach cube A, descend to it, and establish a grasp.",
+      "metric": "distance(eef_pos, cube_a_pos)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(cube_a_grasped) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "The native grasp state defines acquisition independently of an arbitrary TCP-distance threshold."
+    },
+    {
+      "stage": "stack_and_release",
+      "failure_substages": [
+        "lift",
+        "stack"
+      ],
+      "description": "Lift cube A, transport it over cube B, lower it, release it, and let the stack settle.",
+      "metric": "absolute_difference(distance(cube_a_pos, cube_b_pos), terminal_separation)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(stack_success) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "The center distance intentionally rises during lifting and falls during placement; multi-segment matching can retain that physically meaningful shape, and environment success verifies placement, stability, and release."
+    }
+  ],
+  "profile_adapter": "schema",
+  "runtime": {
+    "task_module": "StackCube",
+    "solver": "StackCube:solve_stackcube_can",
+    "max_episode_steps": 400,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "cubeA",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "stage_order": [
+    "acquire_cube",
+    "stack_and_release"
+  ],
+  "validation_status": "runtime_unverified"
+}

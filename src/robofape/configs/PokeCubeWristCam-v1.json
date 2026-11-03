@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "task_id": "PokeCubeWristCam-v1",
+  "task_description": "Poke the red cube with the peg and push it into the marked target region.",
+  "observations": [],
+  "stages": [],
+  "profile_adapter": "poke",
+  "stage_order": [
+    "approach",
+    "align",
+    "push"
+  ],
+  "runtime": {
+    "task_module": "PokeCubeWristCam",
+    "solver": "PokeCubeWristCam:solve_pokecube_wristcam",
+    "max_episode_steps": 300,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "peg",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "num_stage": 3,
+  "validation_status": "runtime_unverified"
+}

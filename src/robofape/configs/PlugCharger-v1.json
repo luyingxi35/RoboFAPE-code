@@ -1,0 +1,131 @@
+{
+  "schema_version": 2,
+  "task_id": "PlugCharger-v1",
+  "task_description": "Pick up the charger, align its plug with the receptacle, and insert it fully.",
+  "num_stage": 3,
+  "observations": [
+    {
+      "name": "eef_pos",
+      "source": "agent.tcp.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Robot tool-center-point world position."
+    },
+    {
+      "name": "charger_base_pos",
+      "source": "env.charger_base_pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Center of the charger base used for grasping."
+    },
+    {
+      "name": "charger_pos",
+      "source": "env.charger.pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Charger reference position."
+    },
+    {
+      "name": "charger_quat",
+      "source": "env.charger.pose",
+      "argument": null,
+      "transform": "quaternion",
+      "description": "Charger world orientation."
+    },
+    {
+      "name": "goal_pos",
+      "source": "env.goal_pose",
+      "argument": null,
+      "transform": "position",
+      "description": "Charger reference position at full insertion."
+    },
+    {
+      "name": "goal_quat",
+      "source": "env.goal_pose",
+      "argument": null,
+      "transform": "quaternion",
+      "description": "Required insertion orientation."
+    },
+    {
+      "name": "goal_axis",
+      "source": "env.goal_pose",
+      "argument": null,
+      "transform": "axis_x",
+      "description": "Receptacle insertion axis in world coordinates."
+    },
+    {
+      "name": "charger_grasped",
+      "source": "agent.strict_is_grasping",
+      "argument": "env.charger",
+      "transform": "boolean",
+      "description": "Whether the robot currently grasps the charger."
+    },
+    {
+      "name": "plugged",
+      "source": "env.evaluate.success",
+      "argument": null,
+      "transform": "boolean",
+      "description": "Authoritative charger insertion-success predicate."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "acquire_charger",
+      "failure_substages": [
+        "reach",
+        "grasp"
+      ],
+      "description": "Approach the charger base, descend, and establish a grasp.",
+      "metric": "distance(eef_pos, charger_base_pos)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(charger_grasped) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "Acquisition ends at the native grasp event rather than at a geometry-dependent TCP threshold."
+    },
+    {
+      "stage": "align_charger",
+      "failure_substages": [
+        "align"
+      ],
+      "description": "Transport the grasped charger to a pre-insertion pose aligned with the receptacle axis.",
+      "metric": "relative_pose_norm(charger_pos, charger_quat, goal_pos, goal_quat, 0.08, 0.25)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(charger_grasped) >= 1.0 and lateral_distance(charger_pos, goal_pos, goal_axis) < 0.01 and orientation_error(charger_quat, goal_quat) < 0.25 and distance(charger_pos, goal_pos) < 0.08",
+      "monotonic_expected": false,
+      "rationale": "Use a dimensionless relative-pose norm with explicit 8 cm translation and 0.25 rad rotation scales; retain lateral, axial, and angular gates as physical safety conditions."
+    },
+    {
+      "stage": "insert_charger",
+      "failure_substages": [
+        "insert"
+      ],
+      "description": "Advance the aligned charger into the receptacle.",
+      "metric": "relative_pose_norm(charger_pos, charger_quat, goal_pos, goal_quat, 0.005, 0.2)",
+      "direction": "decrease",
+      "end_condition": "boolean_state(plugged) >= 1.0",
+      "monotonic_expected": false,
+      "rationale": "Use a dimensionless relative-pose norm with the native 5 mm and 0.2 rad success scales; the environment success predicate remains authoritative."
+    }
+  ],
+  "profile_adapter": "schema",
+  "runtime": {
+    "task_module": "PlugCharger",
+    "solver": "upstream:PlugCharger-v1",
+    "max_episode_steps": 350,
+    "robot": "panda_wristcam",
+    "control_mode": "pd_joint_pos",
+    "object": "charger",
+    "main_camera": "render_camera",
+    "wrist_camera": "hand_camera",
+    "camera_size": 224,
+    "render_size": 512,
+    "sim_backend": "gpu",
+    "action_dim": 8
+  },
+  "stage_order": [
+    "acquire_charger",
+    "align_charger",
+    "insert_charger"
+  ],
+  "validation_status": "runtime_unverified"
+}

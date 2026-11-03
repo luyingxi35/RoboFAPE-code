@@ -1,0 +1,8 @@
+include LICENSE NOTICE.md README.md CONTRIBUTING.md
+recursive-include licenses *.txt
+recursive-include docs *.md *.jpeg *.json
+recursive-include examples *.json
+recursive-include requirements *.txt
+recursive-include scripts *.py
+recursive-include tests *.py
+recursive-include src/robofape/configs *.json

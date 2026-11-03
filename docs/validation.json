@@ -1,0 +1,42 @@
+{
+  "release_status": "development_unverified_collection",
+  "offline": {
+    "unit_tests": "passed",
+    "test_count": 23,
+    "wheel": "passed",
+    "sdist": "passed",
+    "static": "passed",
+    "external_workdir": "passed",
+    "space_in_path": "passed",
+    "source_independence": "passed",
+    "path_audit": {
+      "date": "2026-11-03",
+      "hardcoded_private_paths": "none_found",
+      "relative_cli_from_external_workdir": "passed",
+      "relocated_output_after_input_removal": "passed",
+      "copied_resource_checksums": "passed",
+      "absolute_checkpoint_members_rejected": "passed",
+      "posix_windows_and_parent_traversal_rejected": "passed",
+      "escaping_symlink_rejected": "passed",
+      "simulator_asset_paths": "checked_against_ManiSkill_v3.0.0b22_source_not_runtime"
+    },
+    "environment": {
+      "python": "3.12",
+      "numpy": "2.3.5",
+      "setuptools": "84.1.0",
+      "wheel": "0.48.0",
+      "platform": "macOS arm64"
+    },
+    "installation": "non-editable wheel in a virtual environment using preinstalled offline dependencies"
+  },
+  "collection": {
+    "linux_gpu": "not_run",
+    "real_policy": "not_run",
+    "real_samples": "not_available"
+  },
+  "limitations": [
+    "No Linux/GPU simulation runtime or compatible checkpoint available in this validation environment",
+    "Analytical fixtures are not collected trajectories",
+    "Inference adapter runtime compatibility and dependency lock remain unverified"
+  ]
+}
